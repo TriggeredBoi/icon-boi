@@ -67,12 +67,12 @@ async def on_ready():
     sleep(1)
 
 current_year = datetime.date.today().year
-def to_datetime(name:str) -> datetime.date:
+def to_datetime(name):
     if(found := re.findall("[a-zA-Z]", name)):
         botlog.warning(f"Not a number or \"Default\": ({', '.join(found)}) in \"{name}\". Skipping...")
         return
 
-    when:list = name.split(".")
+    when = name.split(".")
     if len(when) != 2:
         botlog.warning(f"Invalid timestamp: \"{name}\". Skipping...")
         return
