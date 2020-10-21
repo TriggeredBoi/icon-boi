@@ -3,11 +3,26 @@ from random import choice
 from time import sleep
 import datetime
 import re
+import logging
 
 #below are the ones that aren't python builtins
 from discordpy.ext import commands
 from dotenv import load_dotenv
 
+console = logging.StreamHandler()
+
+discordlog = logging.getLogger('discord')
+discordlog.setLevel(logging.INFO)
+handler1 = logging.FileHandler(filename='./logs/discord.log', encoding='utf-8', mode='w')
+handler1.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s:%(name)s: %(message)s'))
+discordlog.addHandler(handler1)
+
+botlog = logging.getLogger('bot')
+botlog.setLevel(logging.INFO)
+handler2 = logging.FileHandler(filename='./logs/bot.log', encoding='utf-8', mode='w')
+handler2.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s:%(name)s: %(message)s'))
+botlog.addHandler(handler2)
+botlog.addHandler(console)
 
 configpath = "config.txt"
 if not os.path.isfile(configpath): #why would someone delete it? no idea! but they could.
@@ -19,18 +34,18 @@ load_dotenv(configpath)
 
 token = os.getenv("DISCORD_TOKEN")
 if not token:
-    print(f"The \"token\" field is empty - Please open \"{configpath}\" and put the discord bot token and Server ID in their respective fields.")
+    botlog.error(f"The \"token\" field is empty - Please open \"{configpath}\" and put the discord bot token and Server ID in their respective fields.")
     exit()
 
 
 try:
     guildID = int(os.getenv("GUILD_ID"))
     if not guildID:
-        print("You had ONE job - To fill in the token AND the server ID you wanted it to change the icons for, AND YOU DIDN'T DO THE LATTER.")
+        botlog.error("You had ONE job - To fill in the token AND the server ID you wanted it to change the icons for, AND YOU DIDN'T DO THE LATTER.")
         exit()
 
 except ValueError:
-    print("Dude, you put LETTERS on the Guild ID? Really? IT'S NUMBERS ONLY, NUMBNUT.")
+    botlog.error("Dude, you put LETTERS on the Guild ID? Really? IT'S NUMBERS ONLY, NUMBNUT.")
     exit()
 
 
@@ -38,7 +53,7 @@ bot = commands.Bot(command_prefix="!")
 
 @bot.event
 async def on_ready():
-    print("Bot is up. Let's see what today's icon will be...")
+    botlog.info("Bot is up. Let's see what today's icon will be...")
 
     global guildID
     for guild in bot.guilds: #why would it be in multiple? Idk.
@@ -47,19 +62,19 @@ async def on_ready():
             await bot.close()
             sleep(1) #gotta give the async loop time to kill itself else it (harmessly) screams an exception
             return
-    print(f"The bot could not find a server with ID \"{guildID}\". Was it kicked? Was it never there? Did you write it wrong? Who knows! But probably the latter.")
+    botlog.error(f"The bot could not find a server with ID \"{guildID}\". Was it kicked? Was it never there? Did you write it wrong? Who knows! But probably the latter.")
     await bot.close()
     sleep(1)
 
 current_year = datetime.date.today().year
 def to_datetime(name:str) -> datetime.date:
     if(found := re.findall("[a-zA-Z]", name)):
-        print(f"Not a number or \"Default\": ({', '.join(found)}) in \"{name}\". Skipping...")
+        botlog.warning(f"Not a number or \"Default\": ({', '.join(found)}) in \"{name}\". Skipping...")
         return
 
     when:list = name.split(".")
     if len(when) != 2:
-        print(f"Invalid timestamp: \"{name}\". Skipping...")
+        botlog.warning(f"Invalid timestamp: \"{name}\". Skipping...")
         return
     when = [int(x) for x in when]
     
@@ -98,7 +113,7 @@ def scan(folder):
                 matches["ranged"].append(DirEntry)
 
         else:
-            print(f"Invalid time range: \"{name}\". Skipping...")
+            botlog.warning(f"Invalid time range: \"{name}\". Skipping...")
 
     return matches
 
@@ -106,7 +121,7 @@ def scan(folder):
 def setIcon(DirEntry):
     global default
     if not DirEntry:
-        print("setIcon() was called with a null DirEntry for fuck's sake")
+        botlog.warning("setIcon() was called with a null DirEntry for fuck's sake")
         DirEntry = default
     isdefault = (DirEntry.name == "Default")
 
@@ -115,25 +130,25 @@ def setIcon(DirEntry):
 
     except:
         if isdefault:
-            print("Failed to read bytes from the Default file. Bailing out...")
+            botlog.error("Failed to read bytes from the Default file. Bailing out...")
             return
 
         else:
-            print(f"Got an icon ({DirEntry.name}) for today but could not read any bytes. Using the default instead...")
+            botlog.error(f"Got an icon ({DirEntry.name}) for today but could not read any bytes. Using the default instead...")
             if not default:
-                print("Couldn't find the default file, bailing out...")
+                botlog.error("Couldn't find the default file, bailing out...")
                 return
             return setIcon(default)
 
     if not IconBytes:
         if isdefault:
-            print("Erm.. The default file is empty? Bailing out...")
+            botlog.error("Erm.. The default file is empty? Bailing out...")
             return
             
         else:
-            print(f"Got an icon ({DirEntry.name}) for today but... The file is empty? Trying to use the default instead...")
+            botlog.error(f"Got an icon ({DirEntry.name}) for today but... The file is empty? Trying to use the default instead...")
             if not default:
-                print("Couldn't find the default file, bailing out...")
+                botlog.error("Couldn't find the default file, bailing out...")
                 return
             return setIcon(default)
 
@@ -163,12 +178,12 @@ async def dothing(guild):
     if not icon:
         global default
         if not default:
-            print("Could not find an icon for today and could not find a file named \"Default\". Bailing out...")
+            botlog.error("Could not find an icon for today and could not find a file named \"Default\". Bailing out...")
             return
         icon = default
 
     if icon.name == lastIcon():
-        print("Today's icon seems to be the same as yesterday's icon, looks like my work here is already done!")
+        botlog.info("Today's icon seems to be the same as yesterday's icon, looks like my work here is already done!")
         return #no need to update
 
     IconBytes = setIcon(icon)
@@ -176,7 +191,7 @@ async def dothing(guild):
         return #seticon should have already given the proper warnings
 
     await guild.edit(reason="Automatic Icon Change, you're welcome.", icon = IconBytes)
-    print(f"Set today's server icon to \"{icon.name}\"")
+    botlog.info(f"Set today's server icon to \"{icon.name}\"")
     setLastIcon(icon.name)
 
 
