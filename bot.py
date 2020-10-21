@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 import os
 from random import choice
 from time import sleep
@@ -7,6 +6,7 @@ import re
 
 #below are the ones that aren't python builtins
 from discordpy.ext import commands
+from dotenv import load_dotenv
 
 
 configpath = "config.txt"
