@@ -9,26 +9,30 @@ import logging
 from discordpy.ext import commands
 from dotenv import load_dotenv
 
+
 console = logging.StreamHandler()
 
 discordlog = logging.getLogger('discord')
 discordlog.setLevel(logging.INFO)
-handler1 = logging.FileHandler(filename='./logs/discord.log', encoding='utf-8', mode='w')
+handler1 = logging.FileHandler(filename='./logs/discord.log', encoding='utf-8', mode='a')
 handler1.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s:%(name)s: %(message)s'))
 discordlog.addHandler(handler1)
 
 botlog = logging.getLogger('bot')
 botlog.setLevel(logging.INFO)
-handler2 = logging.FileHandler(filename='./logs/bot.log', encoding='utf-8', mode='w')
-handler2.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s:%(name)s: %(message)s'))
+handler2 = logging.FileHandler(filename='./logs/bot.log', encoding='utf-8', mode='a')
+handler2.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s: %(message)s'))
 botlog.addHandler(handler2)
 botlog.addHandler(console)
+
+discordlog.info("----New run started----")
+botlog.info("----New run started----")
+
 
 configpath = "config.txt"
 if not os.path.isfile(configpath): #why would someone delete it? no idea! but they could.
     with open(configpath, "w") as f:
         f.write("DISCORD_TOKEN=\nGUILD_ID=")
-
 
 load_dotenv(configpath)
 
@@ -66,6 +70,7 @@ async def on_ready():
     await bot.close()
     sleep(1)
 
+
 current_year = datetime.date.today().year
 def to_datetime(name):
     if(found := re.findall("[a-zA-Z]", name)):
@@ -77,7 +82,7 @@ def to_datetime(name):
         botlog.warning(f"Invalid timestamp: \"{name}\". Skipping...")
         return
     when = [int(x) for x in when]
-    
+
     #datetime is so needy that it REQUIRES a year, it doesn't default to something. laame.
     return datetime.date(year = current_year, month = when[1], day = when[0])
 
@@ -88,6 +93,7 @@ def strip_file_ending(text):
     #I may still have to hardcode this regex if this becomes a performance hog
     #That is, if for some reason this ends up having to scan like a thousand files for SOME REASON
     return re.sub(regex_text, '', text)
+
 
 default = None
 def scan(folder):
@@ -117,7 +123,7 @@ def scan(folder):
 
     return matches
 
-    
+
 def setIcon(DirEntry):
     global default
     if not DirEntry:
@@ -154,6 +160,7 @@ def setIcon(DirEntry):
 
     return IconBytes
 
+
 def lastIcon():
     with open("LastIcon.txt", "a"): #create it if it doesn't exist
         pass #imo this method is more stylish than using os.path.isfile() so I'm sticking with it
@@ -164,6 +171,7 @@ def lastIcon():
 def setLastIcon(name):
     with open("LastIcon.txt", "w") as file:
         file.write(name)
+
 
 @bot.command()
 async def dothing(guild):
