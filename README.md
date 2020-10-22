@@ -5,6 +5,17 @@ Supposed to be ran daily (using something like windows task manager) to automate
 
 Made because my friend forgets to change his server's icon for festivities like halloween or christmas.
 
+
+# Requirements
+Needs Python 3 and DiscordPy.
+
+...What, you want an installation guide?
+
+Well, you're shit out of luck mate, I'm a horrible teacher. Googling "Python" and "DiscordPy" got me places, though.
+
+A Discord bot. Long story short, bots are discord accounts. You gotta make one yourself. Google "Discord bot token".
+
+
 # Usage ~~(as if anyone will want to use it lmao)~~
 When you first run it, it'll spit out 2 files:
 
