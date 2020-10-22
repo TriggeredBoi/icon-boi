@@ -6,7 +6,7 @@ import re
 import logging
 
 #below are the ones that aren't python builtins
-from discordpy.ext import commands
+from discord.ext import commands
 from dotenv import load_dotenv
 
 
