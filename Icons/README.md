@@ -1,7 +1,7 @@
 - Timestamps are in ``DD.MM`` format.
-- You can use a dash to specify a time range like ``DD.MM-DD.MM``.
-- Examples of valid file names: ``6.9.png``, ``1.12-31.12.jpg``.
+- You can use a dash to specify a time range like ``DD.MM-DD.MM``
+- Examples of valid file names: ``6.9.png``, ``1.12-31.12.jpg``
 - Gifs are supported, but they won't work unless your server has boosts. Capitalism.
 - Discord has a cap to the file size of a server's icon, last time I checked it was 256kb. Make sure your file is under that limit.
-- Also, keep any image named ``Default`` in this folder or it will scream
+- Also, keep any image named ``Default`` in this folder or it will scream.
 - ~~(If it could)~~
