@@ -1,0 +1,4 @@
+- Timestamps are in ``DD.MM`` format
+- You can use a dash to specify a time range like ``DD.MM-DD.MM``
+- Also, keep a file named ``Default`` or else it will scream
+- ...That is, if it could
